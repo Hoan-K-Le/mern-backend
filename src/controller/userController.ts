@@ -2,8 +2,7 @@ import { Response, Request } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/user";
 import jwt from "jsonwebtoken";
-import { IUser } from "../interfaces/user.interface";
-
+import { comparePassword, hashPassword } from "../helper/auth";
 // login user
 const loginUser = async (
   req: Request,
@@ -19,7 +18,7 @@ const loginUser = async (
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-    const match = await bcrypt.compare(password, user.password);
+    const match = comparePassword(password, user.password);
     if (!match) {
       return res.status(401).json({ msg: "Invalid credentials" });
     }
@@ -50,9 +49,7 @@ const signUp = async (req: Request, res: Response) => {
       res.json({ msg: "Email already in use" });
     }
 
-    // salt are random string of characters before it is hashed
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
+    const hash = hashPassword(password);
     const user = await User.create({ email, password: hash });
     res.status(200).json({ msg: "success", user });
   } catch (error) {
