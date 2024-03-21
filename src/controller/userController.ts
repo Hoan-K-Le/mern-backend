@@ -1,8 +1,9 @@
 import { Response, Request } from "express";
-import bcrypt from "bcrypt";
+import cookie from "cookie";
 import User from "../models/user";
 import jwt from "jsonwebtoken";
 import { comparePassword, hashPassword } from "../helper/auth";
+
 // login user
 const loginUser = async (
   req: Request,
@@ -12,15 +13,15 @@ const loginUser = async (
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(404).json({ msg: "Email or password is incorrect" });
+      return res.status(404).json({ msg: "All fields must be filled." });
     }
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ msg: "User not found" });
+      return res.status(404).json({ msg: "Incorrect email." });
     }
     const match = comparePassword(password, user.password);
     if (!match) {
-      return res.status(401).json({ msg: "Invalid credentials" });
+      return res.status(401).json({ msg: "Incorrect password." });
     }
     const token = jwt.sign(
       { user: user._id },
@@ -29,7 +30,11 @@ const loginUser = async (
         expiresIn: "1h",
       }
     );
-    return res.status(200).json({ user, token });
+    if (!token) {
+      return res.status(401).json({ msg: "missing token." });
+    }
+    res.cookie("token", token);
+    return res.status(200).json({ msg: "Successfully logged in." });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Failed to log in" });
@@ -58,4 +63,40 @@ const signUp = async (req: Request, res: Response) => {
   }
 };
 
-export { loginUser, signUp };
+// logout user
+
+// user verification
+const userVerification = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  try {
+    // if we did not install cookieparser then we have to parse it manually
+    // const cookies = cookie.parse(req.headers.cookie || "");
+    // If we do have cookie parser installed then we can just directly access the token
+    const token = req.cookies.token;
+    if (!token) {
+      return res.json({ msg: "Access denied." });
+    }
+    if (!process.env.SECRET) {
+      return res.status(500).json({ msg: "Denied for missing secret." });
+    }
+    jwt.verify(token, process.env.SECRET, async (err: any, data: any) => {
+      if (err) {
+        return res.json({ msg: "error verifying user" });
+      } else {
+        const user = await User.findOne({ _id: data.user });
+        if (!user) {
+          return res.json({ msg: "User not found" });
+        } else {
+          return res.json({ msg: "Verified", user });
+        }
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
+
+export { loginUser, signUp, userVerification };
