@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 const hashPassword = async (password: string) => {
-  return Promise.resolve((resolve: any, rejected: any) => {
+  return new Promise((resolve: any, rejected: any) => {
     bcrypt.genSalt(10, (error, salt) => {
       if (error) {
         rejected(error);

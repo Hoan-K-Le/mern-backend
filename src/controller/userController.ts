@@ -37,9 +37,8 @@ const loginUser = async (
     return res.status(200).json({ msg: "Successfully logged in." });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Failed to log in" });
+    return res.status(500).json({ msg: "Failed to log in" });
   }
-  res.json({ msg: "testing" });
 };
 
 // signup user
@@ -53,17 +52,27 @@ const signUp = async (req: Request, res: Response) => {
     if (exist) {
       res.json({ msg: "Email already in use" });
     }
+    console.log(password, "backend");
 
-    const hash = hashPassword(password);
+    const hash = await hashPassword(password);
     const user = await User.create({ email, password: hash });
     res.status(200).json({ msg: "success", user });
   } catch (error) {
-    res.status(500).json({ msg: "failed to sign up." });
+    return res.status(500).json({ msg: "failed to sign up." });
     console.log(error);
   }
 };
 
 // logout user
+const logOut = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  try {
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 // user verification
 const userVerification = async (
@@ -76,7 +85,7 @@ const userVerification = async (
     // If we do have cookie parser installed then we can just directly access the token
     const token = req.cookies.token;
     if (!token) {
-      return res.json({ msg: "Access denied." });
+      return res.status(403).json({ msg: "Access denied." });
     }
     if (!process.env.SECRET) {
       return res.status(500).json({ msg: "Denied for missing secret." });
