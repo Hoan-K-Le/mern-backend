@@ -1,5 +1,4 @@
 import { Response, Request } from "express";
-import cookie from "cookie";
 import User from "../models/user";
 import jwt from "jsonwebtoken";
 import { comparePassword, hashPassword } from "../helper/auth";
@@ -69,6 +68,8 @@ const logOut = async (
   res: Response
 ): Promise<Response | void> => {
   try {
+    res.clearCookie("token");
+    res.status(200).json({ msg: "Successfully logged out!" });
   } catch (err) {
     console.log(err);
   }
@@ -108,4 +109,4 @@ const userVerification = async (
   }
 };
 
-export { loginUser, signUp, userVerification };
+export { loginUser, signUp, userVerification, logOut };

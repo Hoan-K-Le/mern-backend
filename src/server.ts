@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import workoutRoute from "./routes/workout";
 
 const MONGO_URI = process.env.MONGO_URI || "";
 const app = express();
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use("/auth", userRoute);
+app.use("/workout", workoutRoute);
 
 app.listen(process.env.PORT, () => {
   console.log(`Listening on PORT: ${process.env.PORT}`);
