@@ -28,7 +28,9 @@ const getWorkouts = async (
   res: Response
 ): Promise<Response | void> => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    // const token = req.headers.authorization?.split(" ")[1];
+    const token = req.cookies.token;
+    console.log(token, "token backend");
     if (!token) {
       return res.status(401).json({ msg: "Authentication token is required" });
     }
