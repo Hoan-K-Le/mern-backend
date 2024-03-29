@@ -51,14 +51,13 @@ const signUp = async (req: Request, res: Response) => {
     if (exist) {
       res.json({ msg: "Email already in use" });
     }
-    console.log(password, "backend");
 
     const hash = await hashPassword(password);
     const user = await User.create({ email, password: hash });
-    res.status(200).json({ msg: "success", user });
+    return res.status(200).json({ msg: "success", user });
   } catch (error) {
-    return res.status(500).json({ msg: "failed to sign up." });
     console.log(error);
+    return res.status(500).json({ msg: "failed to sign up." });
   }
 };
 
@@ -105,8 +104,36 @@ const userVerification = async (
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Internal Server Error" });
+    return res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
-export { loginUser, signUp, userVerification, logOut };
+const createProfile = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  try {
+    // When creating a profile we need name, gender, age, phone number, socials?, or profile image(save for end)
+    const { name, gender, age, phoneNumber, userId } = req.body;
+    console.log(userId);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          createdProfile: true,
+          name,
+          gender,
+          age,
+          contactNumber: phoneNumber,
+        },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Internal Server error" });
+  }
+};
+
+export { loginUser, signUp, userVerification, logOut, createProfile };

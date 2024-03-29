@@ -6,10 +6,13 @@ import {
   signUp,
   userVerification,
   logOut,
+  createProfile,
 } from "../controller/userController";
 
 router.post("/login", loginUser);
 router.post("/signup", signUp);
-router.post("/", userVerification);
+router.get("/verifyUser", userVerification);
 router.post("/logout", logOut);
+router.post("/createProfile", createProfile);
+
 export default router;
