@@ -14,10 +14,12 @@ const newWorkout = async (
       weight: weight,
       reps: reps,
     });
-    await User.findByIdAndUpdate(userId, { $push: { workouts: workout._id } });
+    const updatedUserData = await User.findByIdAndUpdate(userId, {
+      $push: { workouts: workout._id },
+    });
     return res
       .status(200)
-      .json({ msg: "Successfully created workout", workout });
+      .json({ msg: "Successfully created workout", updatedUserData });
   } catch (error) {
     console.log(error);
   }
@@ -30,7 +32,6 @@ const getWorkouts = async (
   try {
     // const token = req.headers.authorization?.split(" ")[1];
     const token = req.cookies.token;
-    console.log(token, "token backend");
     if (!token) {
       return res.status(401).json({ msg: "Authentication token is required" });
     }
@@ -42,8 +43,19 @@ const getWorkouts = async (
     if (!user) {
       return res.status(403).json({ msg: "No user" });
     }
-    console.log(user, "user");
+
     return res.status(200).json({ user });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const deleteWorkout = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  try {
+    const { userId, workoutId } = req.body;
   } catch (error) {
     console.log(error);
   }

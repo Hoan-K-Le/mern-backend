@@ -26,7 +26,7 @@ const loginUser = async (
       { user: user._id },
       process.env.SECRET || "defaultVal",
       {
-        expiresIn: "1h",
+        expiresIn: "1d",
       }
     );
     if (!token) {
