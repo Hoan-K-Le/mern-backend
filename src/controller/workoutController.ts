@@ -14,14 +14,20 @@ const newWorkout = async (
       weight: weight,
       reps: reps,
     });
-    const updatedUserData = await User.findByIdAndUpdate(userId, {
-      $push: { workouts: workout._id },
-    });
+    const updatedUserData = await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: { workouts: workout._id },
+      },
+      { new: true }
+    );
+    console.log(updatedUserData, "updatedUserData");
     return res
       .status(200)
       .json({ msg: "Successfully created workout", updatedUserData });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -30,23 +36,27 @@ const getWorkouts = async (
   res: Response
 ): Promise<Response | void> => {
   try {
-    // const token = req.headers.authorization?.split(" ")[1];
-    const token = req.cookies.token;
-    if (!token) {
-      return res.status(401).json({ msg: "Authentication token is required" });
-    }
-    const decoded = jwt.verify(
-      token,
-      process.env.SECRET as string
-    ) as JwtPayload;
-    const user = await User.findById(decoded.user).populate("workouts");
+    const { userId } = req.query;
+    console.log(userId, "hello");
+    // const token = req.cookies.token;
+    // if (!token) {
+    //   return res.status(401).json({ msg: "Authentication token is required" });
+    // }
+    // const decoded = jwt.verify(
+    //   token,
+    //   process.env.SECRET as string
+    // ) as JwtPayload;
+    // if (!decoded) {
+    //   return res.status(401).json({ msg: "No token" });
+    // }
+    const user = await User.findById(userId).populate("workouts");
     if (!user) {
       return res.status(403).json({ msg: "No user" });
     }
-
     return res.status(200).json({ user });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -58,6 +68,7 @@ const deleteWorkout = async (
     const { userId, workoutId } = req.body;
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ msg: "Server error" });
   }
 };
 

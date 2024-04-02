@@ -1,5 +1,6 @@
 import { model, Schema, Types } from "mongoose";
 import { IUser } from "../interfaces/user.interface";
+import mongoose from "mongoose";
 
 const userSchema = new Schema({
   email: {
@@ -35,7 +36,7 @@ const userSchema = new Schema({
     required: false,
     default: "",
   },
-  workouts: [{ type: Types.ObjectId, ref: "Workout" }],
+  workouts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Workout" }],
 });
 
 const UserModel = model<IUser>("User", userSchema);
