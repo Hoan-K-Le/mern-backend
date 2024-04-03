@@ -21,7 +21,6 @@ const newWorkout = async (
       },
       { new: true }
     );
-    console.log(updatedUserData, "updatedUserData");
     return res
       .status(200)
       .json({ msg: "Successfully created workout", updatedUserData });
@@ -54,11 +53,14 @@ const deleteWorkout = async (
   res: Response
 ): Promise<Response | void> => {
   try {
-    const { userId, workoutId } = req.body;
+    const { workoutId, userId } = req.body;
+    await Workout.deleteOne({ _id: workoutId });
+    await User.updateMany({}, { $pull: { workouts: workoutId } });
+    return res.status(200).json({ msg: "success" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Server error" });
   }
 };
 
-export { newWorkout, getWorkouts };
+export { newWorkout, getWorkouts, deleteWorkout };
