@@ -37,18 +37,7 @@ const getWorkouts = async (
 ): Promise<Response | void> => {
   try {
     const { userId } = req.query;
-    console.log(userId, "hello");
-    // const token = req.cookies.token;
-    // if (!token) {
-    //   return res.status(401).json({ msg: "Authentication token is required" });
-    // }
-    // const decoded = jwt.verify(
-    //   token,
-    //   process.env.SECRET as string
-    // ) as JwtPayload;
-    // if (!decoded) {
-    //   return res.status(401).json({ msg: "No token" });
-    // }
+
     const user = await User.findById(userId).populate("workouts");
     if (!user) {
       return res.status(403).json({ msg: "No user" });
