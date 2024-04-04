@@ -46,11 +46,11 @@ const signUp = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      res.json({ msg: "Need email or password" });
+      return res.json({ msg: "Need email or password" });
     }
     const exist = await User.findOne({ email });
     if (exist) {
-      res.json({ msg: "Email already in use" });
+      return res.json({ msg: "Email already in use" });
     }
 
     const hash = await hashPassword(password);
@@ -63,12 +63,13 @@ const signUp = async (req: Request, res: Response) => {
 };
 
 // logout user
-const logOut = async (req: Request, res: Response): Promise<void> => {
+const logOut = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   try {
-    // res.clearCookie("token");
-
     res.clearCookie("token");
-    res.status(200).json({ msg: "Successfully logged out!" });
+    return res.status(200).json({ msg: "Successfully logged out!" });
   } catch (err) {
     console.log(err);
   }
