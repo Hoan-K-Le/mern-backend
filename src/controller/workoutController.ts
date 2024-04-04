@@ -53,7 +53,7 @@ const deleteWorkout = async (
   res: Response
 ): Promise<Response | void> => {
   try {
-    const { workoutId, userId } = req.body;
+    const { workoutId } = req.body;
     await Workout.deleteOne({ _id: workoutId });
     await User.updateMany({}, { $pull: { workouts: workoutId } });
     return res.status(200).json({ msg: "success" });

@@ -22,18 +22,19 @@ const loginUser = async (
     if (!match) {
       return res.status(401).json({ msg: "Incorrect password." });
     }
-    const token = jwt.sign(
-      { user: user._id },
-      process.env.SECRET || "defaultVal",
-      {
-        expiresIn: "1d",
-      }
-    );
+
+    const secret = process.env.SECRET;
+    if (!secret) {
+      return;
+    }
+    const token = jwt.sign({ user: user._id }, secret, {
+      expiresIn: "1d",
+    });
     if (!token) {
       return res.status(401).json({ msg: "missing token." });
     }
     res.cookie("token", token);
-    return res.status(200).json({ msg: "Successfully logged in." });
+    return res.status(200).json({ msg: "Successfully logged in.", user });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Failed to log in" });
@@ -62,11 +63,10 @@ const signUp = async (req: Request, res: Response) => {
 };
 
 // logout user
-const logOut = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+const logOut = async (req: Request, res: Response): Promise<void> => {
   try {
+    // res.clearCookie("token");
+
     res.clearCookie("token");
     res.status(200).json({ msg: "Successfully logged out!" });
   } catch (err) {
@@ -95,6 +95,7 @@ const userVerification = async (
         return res.json({ msg: "error verifying user" });
       } else {
         const user = await User.findOne({ _id: data.user });
+
         if (!user) {
           return res.json({ msg: "User not found" });
         } else {
@@ -115,7 +116,7 @@ const createProfile = async (
   try {
     // When creating a profile we need name, gender, age, phone number, socials?, or profile image(save for end)
     const { name, gender, age, phoneNumber, userId } = req.body;
-    console.log(userId);
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
