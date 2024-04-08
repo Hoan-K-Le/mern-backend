@@ -17,7 +17,7 @@ mongoose
   );
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: process.env.CLIENT_SIDE,
   credentials: true,
 };
 
